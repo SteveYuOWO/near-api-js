@@ -53,7 +53,11 @@ export interface NearConfig {
      * NEAR RPC API url. used to make JSON RPC calls to interact with NEAR.
      * @see {@link JsonRpcProvider.JsonRpcProvider | JsonRpcProvider}
      */
-    nodeUrl: string;
+    nodeUrl?: string;
+
+
+    // near RPC API urls
+    nodeUrls?: string[];
 
     /**
      * NEAR RPC API headers. Can be used to pass API KEY and other parameters.
@@ -75,6 +79,12 @@ export interface NearConfig {
  * const near = new Near(config);
  * ```
  */
+
+// return delay 
+
+function checkDelay(url: string): number {
+    return 0;
+}
 export class Near {
     readonly config: any;
     readonly connection: Connection;
@@ -82,9 +92,30 @@ export class Near {
 
     constructor(config: NearConfig) {
         this.config = config;
+
+        let nodeUrl = config.nodeUrl;
+        const nodeUrls = config.nodeUrls;
+
+        if(!nodeUrl && (!nodeUrls || nodeUrls.length === 0)) {
+            throw new Error('Need to config nodeUrl or nodeUrls');
+        }
+
+        if(!nodeUrl) {
+            let minDelay = Number.MAX_VALUE, minDelayIndex = -1;
+            for(let nodeUrlIndex = 0; nodeUrlIndex < nodeUrls.length; nodeUrlIndex++) {
+                const delay = checkDelay(nodeUrls[nodeUrlIndex]);
+                if(delay < minDelay) {
+                    minDelayIndex = nodeUrlIndex;
+                    minDelay = delay;
+                }
+            }
+            nodeUrl = nodeUrls[minDelayIndex];
+        }
+        
+
         this.connection = Connection.fromConfig({
             networkId: config.networkId,
-            provider: { type: 'JsonRpcProvider', args: { url: config.nodeUrl, headers: config.headers } },
+            provider: { type: 'JsonRpcProvider', args: { url: nodeUrl, headers: config.headers } },
             signer: config.signer || { type: 'InMemorySigner', keyStore: config.keyStore || (config.deps && config.deps.keyStore) }
         });
         if (config.masterAccount) {

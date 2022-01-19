@@ -47,7 +47,8 @@ export interface NearConfig {
      * NEAR RPC API url. used to make JSON RPC calls to interact with NEAR.
      * @see {@link JsonRpcProvider.JsonRpcProvider | JsonRpcProvider}
      */
-    nodeUrl: string;
+    nodeUrl?: string;
+    nodeUrls?: string[];
     /**
      * NEAR RPC API headers. Can be used to pass API KEY and other parameters.
      * @see {@link JsonRpcProvider.JsonRpcProvider | JsonRpcProvider}
@@ -61,13 +62,6 @@ export interface NearConfig {
      */
     walletUrl?: string;
 }
-/**
- * This is the main class developers should use to interact with NEAR.
- * @example
- * ```js
- * const near = new Near(config);
- * ```
- */
 export declare class Near {
     readonly config: any;
     readonly connection: Connection;
